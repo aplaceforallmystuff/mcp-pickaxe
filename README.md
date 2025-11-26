@@ -69,8 +69,11 @@ Add to your Claude Code MCP settings (`~/.claude.json` or settings UI):
       "command": "node",
       "args": ["/Users/jameschristian/mcp-pickaxe/dist/index.js"],
       "env": {
-        "PICKAXE_STUDIO_RRHUB": "studio-f1e9eca1-0315-4e60-9b67-e3c63422f04f",
-        "PICKAXE_STUDIO_INFORMATIC": "studio-your-other-key",
+        "PICKAXE_STUDIO_RRHUB": "studio-8b19d663-0e5f-44f4-a373-1245330f108a",
+        "PICKAXE_STUDIO_SKILLHIRE": "studio-35099fc7-64ba-4092-8a65-c597bf023fe6",
+        "PICKAXE_STUDIO_SUPERCHARGE": "studio-dc342112-cb3c-4067-be15-8a09c644116c",
+        "PICKAXE_STUDIO_FRAMEWORKPROMPTING": "studio-3a52efe6-0b7e-420b-b40e-06c566e4abd5",
+        "PICKAXE_STUDIO_INFORMATIC": "studio-55ff7a74-76b0-4c34-aff8-19a764a2f2e2",
         "PICKAXE_DEFAULT_STUDIO": "RRHUB"
       }
     }

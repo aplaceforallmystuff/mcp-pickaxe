@@ -28,7 +28,7 @@ MCP server for the Pickaxe API - manages Remote Resilience Hub AI agents, docume
 ### 1. Install dependencies
 
 ```bash
-cd "04 Resources/Pickaxe/mcp-pickaxe"
+cd ~/mcp-pickaxe
 npm install
 ```
 
@@ -47,7 +47,7 @@ Add to your Claude Code MCP settings (`~/.claude/claude_desktop_config.json` or 
   "mcpServers": {
     "pickaxe": {
       "command": "node",
-      "args": ["/Users/jameschristian/Sync/Cerebro/04 Resources/Pickaxe/mcp-pickaxe/dist/index.js"],
+      "args": ["/Users/jameschristian/mcp-pickaxe/dist/index.js"],
       "env": {
         "PICKAXE_API_KEY": "studio-f1e9eca1-0315-4e60-9b67-e3c63422f04f"
       }
@@ -97,4 +97,4 @@ npm run dev
 
 ## API Reference
 
-Full Pickaxe API documentation: `../Pickaxe API documentation.md`
+Full Pickaxe API documentation: See Obsidian vault at `04 Resources/Pickaxe/Pickaxe API documentation.md`

@@ -1,11 +1,31 @@
 # MCP Pickaxe Server
 
-MCP server for the Pickaxe API - manages Remote Resilience Hub AI agents, documents, users, and analytics.
+MCP server for the Pickaxe API - manages multiple Pickaxe studios, AI agents, documents, users, and analytics.
+
+## Multi-Studio Support
+
+This server supports multiple Pickaxe studios. Configure each studio with an environment variable:
+
+```
+PICKAXE_STUDIO_RRHUB=studio-xxx-xxx
+PICKAXE_STUDIO_INFORMATIC=studio-yyy-yyy
+PICKAXE_STUDIO_SON=studio-zzz-zzz
+PICKAXE_DEFAULT_STUDIO=RRHUB
+```
+
+Then use the `studio` parameter in any tool call:
+```
+mcp__pickaxe__doc_list with studio="RRHUB"
+mcp__pickaxe__user_list with studio="INFORMATIC"
+```
+
+If only one studio is configured, it's used automatically. If multiple studios exist, either set a default or pass `studio` explicitly.
 
 ## Tools Available
 
 | Tool | Description |
 |------|-------------|
+| `studios_list` | List all configured studios and default |
 | `chat_history` | Fetch conversation logs for any agent |
 | `doc_create` | Create KB document from content or URL |
 | `doc_connect` | Link document to an agent |
@@ -40,7 +60,7 @@ npm run build
 
 ### 3. Configure Claude Code
 
-Add to your Claude Code MCP settings (`~/.claude/claude_desktop_config.json` or via Claude Code settings):
+Add to your Claude Code MCP settings (`~/.claude.json` or settings UI):
 
 ```json
 {
@@ -49,7 +69,9 @@ Add to your Claude Code MCP settings (`~/.claude/claude_desktop_config.json` or 
       "command": "node",
       "args": ["/Users/jameschristian/mcp-pickaxe/dist/index.js"],
       "env": {
-        "PICKAXE_API_KEY": "studio-f1e9eca1-0315-4e60-9b67-e3c63422f04f"
+        "PICKAXE_STUDIO_RRHUB": "studio-f1e9eca1-0315-4e60-9b67-e3c63422f04f",
+        "PICKAXE_STUDIO_INFORMATIC": "studio-your-other-key",
+        "PICKAXE_DEFAULT_STUDIO": "RRHUB"
       }
     }
   }
@@ -62,24 +84,29 @@ The tools will appear as `mcp__pickaxe__<tool_name>`.
 
 ## Usage Examples
 
-### Analyze agent conversations
+### List configured studios
 ```
-Use mcp__pickaxe__chat_history with pickaxeId "B0AENXYFKO" to fetch the last 20 conversations
+Use mcp__pickaxe__studios_list to see available studios
+```
+
+### Analyze agent conversations (specific studio)
+```
+Use mcp__pickaxe__chat_history with studio="RRHUB", pickaxeId="B0AENXYFKO", limit=20
 ```
 
 ### Add content to an agent's KB
 ```
-1. Use mcp__pickaxe__doc_create to create a document with the NIE guide content
-2. Use mcp__pickaxe__doc_connect to link it to the Bureaucracy Navigator agent
+1. Use mcp__pickaxe__doc_create with studio="RRHUB", name="NIE Guide", rawContent="..."
+2. Use mcp__pickaxe__doc_connect with studio="RRHUB", documentId="...", pickaxeId="K3TI2AAP8D"
 ```
 
-### Manage users
+### Manage users across studios
 ```
-Use mcp__pickaxe__user_list to see all users and their product access
-Use mcp__pickaxe__user_update to add a user to the Digital Nomad bundle
+Use mcp__pickaxe__user_list with studio="RRHUB" to see RRHub users
+Use mcp__pickaxe__user_list with studio="INFORMATIC" to see Informatic users
 ```
 
-## Agent IDs (from Bots folder)
+## Agent IDs (Remote Resilience Hub)
 
 | Agent | Pickaxe ID |
 |-------|------------|

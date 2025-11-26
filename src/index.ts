@@ -10,26 +10,76 @@ import {
 
 // Pickaxe API configuration
 const PICKAXE_BASE_URL = "https://api.pickaxe.co/v1";
-const PICKAXE_API_KEY = process.env.PICKAXE_API_KEY;
+const DEFAULT_STUDIO = process.env.PICKAXE_DEFAULT_STUDIO;
 
-if (!PICKAXE_API_KEY) {
-  console.error("Error: PICKAXE_API_KEY environment variable is required");
+// Get all configured studios from environment
+function getConfiguredStudios(): string[] {
+  const studios: string[] = [];
+  for (const key of Object.keys(process.env)) {
+    if (key.startsWith("PICKAXE_STUDIO_")) {
+      const studioName = key.replace("PICKAXE_STUDIO_", "");
+      studios.push(studioName);
+    }
+  }
+  return studios;
+}
+
+// Get API key for a studio
+function getApiKey(studio?: string): string {
+  const studioName = studio ?? DEFAULT_STUDIO;
+
+  if (!studioName) {
+    const studios = getConfiguredStudios();
+    if (studios.length === 1) {
+      // Only one studio configured, use it
+      return process.env[`PICKAXE_STUDIO_${studios[0]}`]!;
+    }
+    throw new Error(
+      `No studio specified and no default set. Available studios: ${studios.join(", ")}. ` +
+      `Set PICKAXE_DEFAULT_STUDIO or pass 'studio' parameter.`
+    );
+  }
+
+  const apiKey = process.env[`PICKAXE_STUDIO_${studioName.toUpperCase()}`];
+  if (!apiKey) {
+    const studios = getConfiguredStudios();
+    throw new Error(
+      `Studio "${studioName}" not found. Available studios: ${studios.join(", ")}. ` +
+      `Configure with PICKAXE_STUDIO_${studioName.toUpperCase()} environment variable.`
+    );
+  }
+
+  return apiKey;
+}
+
+// Validate at least one studio is configured
+const configuredStudios = getConfiguredStudios();
+if (configuredStudios.length === 0) {
+  console.error("Error: No Pickaxe studios configured.");
+  console.error("Set environment variables like PICKAXE_STUDIO_RRHUB=your-api-key");
   process.exit(1);
+}
+
+console.error(`Pickaxe MCP server initialized with studios: ${configuredStudios.join(", ")}`);
+if (DEFAULT_STUDIO) {
+  console.error(`Default studio: ${DEFAULT_STUDIO}`);
 }
 
 // API helper function
 async function pickaxeRequest(
   endpoint: string,
   method: "GET" | "POST" | "PATCH" | "DELETE" = "GET",
-  body?: Record<string, unknown>
+  body?: Record<string, unknown>,
+  studio?: string
 ): Promise<unknown> {
+  const apiKey = getApiKey(studio);
   const url = endpoint.startsWith("http") ? endpoint : `${PICKAXE_BASE_URL}${endpoint}`;
 
   const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${PICKAXE_API_KEY}`,
+      "Authorization": `Bearer ${apiKey}`,
     },
   };
 
@@ -47,8 +97,24 @@ async function pickaxeRequest(
   return response.json();
 }
 
+// Studio parameter schema (added to all tools)
+const studioParam = {
+  type: "string",
+  description: `Studio name to use. Available: ${configuredStudios.join(", ")}. Default: ${DEFAULT_STUDIO || configuredStudios[0]}`,
+};
+
 // Define all tools
 const tools: Tool[] = [
+  // Studio management
+  {
+    name: "studios_list",
+    description: "List all configured Pickaxe studios and the current default.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+
   // Chat History
   {
     name: "chat_history",
@@ -56,6 +122,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         pickaxeId: {
           type: "string",
           description: "The Pickaxe agent ID (from the agent URL or config)",
@@ -85,6 +152,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         name: {
           type: "string",
           description: "Name/title of the document",
@@ -107,6 +175,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         documentId: {
           type: "string",
           description: "The document ID to connect",
@@ -125,6 +194,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         documentId: {
           type: "string",
           description: "The document ID to disconnect",
@@ -143,6 +213,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         skip: {
           type: "number",
           description: "Number of documents to skip. Default: 0",
@@ -160,6 +231,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         documentId: {
           type: "string",
           description: "The document ID to retrieve",
@@ -174,6 +246,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         documentId: {
           type: "string",
           description: "The document ID to delete",
@@ -190,6 +263,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         skip: {
           type: "number",
           description: "Number of users to skip. Default: 0",
@@ -207,6 +281,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         email: {
           type: "string",
           description: "The user's email address",
@@ -221,6 +296,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         email: {
           type: "string",
           description: "User's email address (required)",
@@ -252,6 +328,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         email: {
           type: "string",
           description: "The user's email address",
@@ -287,6 +364,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         email: {
           type: "string",
           description: "The user's email address to delete",
@@ -301,6 +379,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         emails: {
           type: "array",
           items: { type: "string" },
@@ -322,7 +401,9 @@ const tools: Tool[] = [
     description: "List all available products/bundles in the Pickaxe studio.",
     inputSchema: {
       type: "object",
-      properties: {},
+      properties: {
+        studio: studioParam,
+      },
     },
   },
 
@@ -333,6 +414,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         skip: {
           type: "number",
           description: "Number of memories to skip. Default: 0",
@@ -350,6 +432,7 @@ const tools: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {
+        studio: studioParam,
         email: {
           type: "string",
           description: "The user's email address",
@@ -374,7 +457,20 @@ const tools: Tool[] = [
 
 // Tool execution handlers
 async function executeTool(name: string, args: Record<string, unknown>): Promise<string> {
+  const studio = args.studio as string | undefined;
+
   switch (name) {
+    // Studio management
+    case "studios_list": {
+      const studios = getConfiguredStudios();
+      const result = {
+        studios,
+        default: DEFAULT_STUDIO || (studios.length === 1 ? studios[0] : null),
+        count: studios.length,
+      };
+      return JSON.stringify(result, null, 2);
+    }
+
     // Chat History
     case "chat_history": {
       const result = await pickaxeRequest("/studio/pickaxe/history", "POST", {
@@ -382,7 +478,7 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
         skip: args.skip ?? 0,
         limit: args.limit ?? 10,
         format: args.format ?? "messages",
-      });
+      }, studio);
       return JSON.stringify(result, null, 2);
     }
 
@@ -391,35 +487,35 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
       const body: Record<string, unknown> = { name: args.name };
       if (args.rawContent) body.rawContent = args.rawContent;
       if (args.website) body.website = args.website;
-      const result = await pickaxeRequest("/studio/document/create", "POST", body);
+      const result = await pickaxeRequest("/studio/document/create", "POST", body, studio);
       return JSON.stringify(result, null, 2);
     }
     case "doc_connect": {
       const result = await pickaxeRequest("/studio/document/connect", "POST", {
         documentId: args.documentId,
         pickaxeId: args.pickaxeId,
-      });
+      }, studio);
       return JSON.stringify(result, null, 2);
     }
     case "doc_disconnect": {
       const result = await pickaxeRequest("/studio/document/disconnect", "POST", {
         documentId: args.documentId,
         pickaxeId: args.pickaxeId,
-      });
+      }, studio);
       return JSON.stringify(result, null, 2);
     }
     case "doc_list": {
       const skip = args.skip ?? 0;
       const take = args.take ?? 10;
-      const result = await pickaxeRequest(`/studio/document/list?skip=${skip}&take=${take}`);
+      const result = await pickaxeRequest(`/studio/document/list?skip=${skip}&take=${take}`, "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
     case "doc_get": {
-      const result = await pickaxeRequest(`/studio/document/${args.documentId}`);
+      const result = await pickaxeRequest(`/studio/document/${args.documentId}`, "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
     case "doc_delete": {
-      const result = await pickaxeRequest(`/studio/document/${args.documentId}`, "DELETE");
+      const result = await pickaxeRequest(`/studio/document/${args.documentId}`, "DELETE", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
 
@@ -427,11 +523,11 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
     case "user_list": {
       const skip = args.skip ?? 0;
       const take = args.take ?? 10;
-      const result = await pickaxeRequest(`/studio/user/list?skip=${skip}&take=${take}`);
+      const result = await pickaxeRequest(`/studio/user/list?skip=${skip}&take=${take}`, "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
     case "user_get": {
-      const result = await pickaxeRequest(`/studio/user/${encodeURIComponent(args.email as string)}`);
+      const result = await pickaxeRequest(`/studio/user/${encodeURIComponent(args.email as string)}`, "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
     case "user_create": {
@@ -441,7 +537,7 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
         password: args.password,
         products: args.products,
         isEmailVerified: args.isEmailVerified ?? false,
-      });
+      }, studio);
       return JSON.stringify(result, null, 2);
     }
     case "user_update": {
@@ -455,14 +551,17 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
       const result = await pickaxeRequest(
         `/studio/user/${encodeURIComponent(args.email as string)}`,
         "PATCH",
-        { data }
+        { data },
+        studio
       );
       return JSON.stringify(result, null, 2);
     }
     case "user_delete": {
       const result = await pickaxeRequest(
         `/studio/user/${encodeURIComponent(args.email as string)}`,
-        "DELETE"
+        "DELETE",
+        undefined,
+        studio
       );
       return JSON.stringify(result, null, 2);
     }
@@ -470,13 +569,13 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
       const result = await pickaxeRequest("/studio/user/invite", "POST", {
         emails: args.emails,
         productIds: args.productIds,
-      });
+      }, studio);
       return JSON.stringify(result, null, 2);
     }
 
     // Product tools
     case "products_list": {
-      const result = await pickaxeRequest("/studio/product/list");
+      const result = await pickaxeRequest("/studio/product/list", "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
 
@@ -484,14 +583,14 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
     case "memory_list": {
       const skip = args.skip ?? 0;
       const take = args.take ?? 10;
-      const result = await pickaxeRequest(`/studio/memory/list?skip=${skip}&take=${take}`);
+      const result = await pickaxeRequest(`/studio/memory/list?skip=${skip}&take=${take}`, "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
     case "memory_get_user": {
       let url = `/studio/memory/user/${encodeURIComponent(args.email as string)}?`;
       if (args.memoryId) url += `memoryId=${args.memoryId}&`;
       url += `skip=${args.skip ?? 0}&take=${args.take ?? 10}`;
-      const result = await pickaxeRequest(url);
+      const result = await pickaxeRequest(url, "GET", undefined, studio);
       return JSON.stringify(result, null, 2);
     }
 
@@ -504,7 +603,7 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
 const server = new Server(
   {
     name: "mcp-pickaxe",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {

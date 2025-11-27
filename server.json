@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.aplaceforallmystuff/mcp-pickaxe",
+  "description": "MCP server for Pickaxe API - manage AI agents, knowledge bases, users, and analytics",
+  "repository": {
+    "url": "https://github.com/aplaceforallmystuff/mcp-pickaxe",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "mcp-pickaxe",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Your Pickaxe studio API key",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true,
+          "name": "PICKAXE_API_KEY"
+        },
+        {
+          "description": "Your Pickaxe studio ID",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": false,
+          "name": "PICKAXE_STUDIO_ID"
+        }
+      ]
+    }
+  ]
+}

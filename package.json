@@ -1,6 +1,7 @@
 {
   "name": "mcp-pickaxe",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "mcpName": "io.github.aplaceforallmystuff/mcp-pickaxe",
   "description": "MCP server for Pickaxe API - manage AI agents, knowledge bases, users, and analytics",
   "type": "module",
   "main": "dist/index.js",

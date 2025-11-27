@@ -1,5 +1,6 @@
 # MCP Pickaxe Server
 
+[![npm version](https://img.shields.io/npm/v/mcp-pickaxe.svg)](https://www.npmjs.com/package/mcp-pickaxe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-blue)](https://modelcontextprotocol.io)
 
@@ -34,19 +35,25 @@ If you're building AI agents on Pickaxe, this MCP server lets you:
 
 ## Installation
 
-### Option 1: Clone and Build
+### Option 1: Install from npm (recommended)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mcp-pickaxe.git
-cd mcp-pickaxe
-npm install
-npm run build
+npx mcp-pickaxe
 ```
 
-### Option 2: Install from npm (coming soon)
+Or install globally:
 
 ```bash
 npm install -g mcp-pickaxe
+```
+
+### Option 2: Clone and Build
+
+```bash
+git clone https://github.com/aplaceforallmystuff/mcp-pickaxe.git
+cd mcp-pickaxe
+npm install
+npm run build
 ```
 
 ## Configuration

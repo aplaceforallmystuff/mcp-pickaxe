@@ -603,7 +603,7 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
 const server = new Server(
   {
     name: "mcp-pickaxe",
-    version: "1.1.0",
+    version: "1.0.0",
   },
   {
     capabilities: {

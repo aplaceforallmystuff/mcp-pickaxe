@@ -1,14 +1,44 @@
 {
   "name": "mcp-pickaxe",
   "version": "1.0.0",
-  "description": "MCP server for Pickaxe API - Remote Resilience Hub",
+  "description": "MCP server for Pickaxe API - manage AI agents, knowledge bases, users, and analytics",
   "type": "module",
   "main": "dist/index.js",
+  "bin": {
+    "mcp-pickaxe": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "pickaxe",
+    "ai-agents",
+    "claude",
+    "anthropic",
+    "knowledge-base"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aplaceforallmystuff/mcp-pickaxe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aplaceforallmystuff/mcp-pickaxe/issues"
+  },
+  "homepage": "https://github.com/aplaceforallmystuff/mcp-pickaxe#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },

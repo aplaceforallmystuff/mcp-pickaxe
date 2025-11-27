@@ -1,130 +1,221 @@
 # MCP Pickaxe Server
 
-MCP server for the Pickaxe API - manages multiple Pickaxe studios, AI agents, documents, users, and analytics.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-blue)](https://modelcontextprotocol.io)
 
-## Multi-Studio Support
+An MCP (Model Context Protocol) server that connects AI assistants like Claude to the [Pickaxe](https://pickaxe.co) platform. Manage your AI agents, knowledge bases, users, and analytics directly through natural language.
 
-This server supports multiple Pickaxe studios. Configure each studio with an environment variable:
+## Why Use This?
 
-```
-PICKAXE_STUDIO_RRHUB=studio-xxx-xxx
-PICKAXE_STUDIO_INFORMATIC=studio-yyy-yyy
-PICKAXE_STUDIO_SON=studio-zzz-zzz
-PICKAXE_DEFAULT_STUDIO=RRHUB
-```
+If you're building AI agents on Pickaxe, this MCP server lets you:
 
-Then use the `studio` parameter in any tool call:
-```
-mcp__pickaxe__doc_list with studio="RRHUB"
-mcp__pickaxe__user_list with studio="INFORMATIC"
-```
+- **Analyze agent conversations** - Review chat history to identify knowledge gaps and improve agent performance
+- **Manage knowledge bases** - Create, update, and connect documents to your agents without leaving your AI workflow
+- **Handle user management** - Create users, manage access, send invitations, and track usage
+- **Work across multiple studios** - Seamlessly switch between different Pickaxe studios in a single session
+- **Automate workflows** - Let Claude handle repetitive Pickaxe admin tasks
 
-If only one studio is configured, it's used automatically. If multiple studios exist, either set a default or pass `studio` explicitly.
+## Features
 
-## Tools Available
+| Category | Tools |
+|----------|-------|
+| **Studios** | List configured studios, switch between them |
+| **Chat History** | Fetch and analyze agent conversation logs |
+| **Documents** | Create, list, get, delete, connect/disconnect to agents |
+| **Users** | Create, list, get, update, delete, invite |
+| **Products** | List available products and bundles |
+| **Memory** | List memory schemas, retrieve user memories |
 
-| Tool | Description |
-|------|-------------|
-| `studios_list` | List all configured studios and default |
-| `chat_history` | Fetch conversation logs for any agent |
-| `doc_create` | Create KB document from content or URL |
-| `doc_connect` | Link document to an agent |
-| `doc_disconnect` | Unlink document from an agent |
-| `doc_list` | List all documents |
-| `doc_get` | Get document details |
-| `doc_delete` | Delete a document |
-| `user_list` | List all users |
-| `user_get` | Get user details |
-| `user_create` | Create new user |
-| `user_update` | Update user (products, usage, etc.) |
-| `user_delete` | Delete user |
-| `user_invite` | Send email invitations |
-| `products_list` | List available products/bundles |
-| `memory_list` | List memory schemas |
-| `memory_get_user` | Get user's collected memories |
+## Prerequisites
 
-## Setup
+- Node.js 18+
+- A [Pickaxe](https://pickaxe.co) account with API access
+- Your Pickaxe Studio API key(s)
 
-### 1. Install dependencies
+## Installation
+
+### Option 1: Clone and Build
 
 ```bash
-cd ~/mcp-pickaxe
+git clone https://github.com/YOUR_USERNAME/mcp-pickaxe.git
+cd mcp-pickaxe
 npm install
-```
-
-### 2. Build
-
-```bash
 npm run build
 ```
 
-### 3. Configure Claude Code
+### Option 2: Install from npm (coming soon)
 
-Add to your Claude Code MCP settings (`~/.claude.json` or settings UI):
+```bash
+npm install -g mcp-pickaxe
+```
+
+## Configuration
+
+### 1. Get Your Pickaxe API Key
+
+1. Log in to [Pickaxe Studio](https://studio.pickaxe.co)
+2. Navigate to Settings > API
+3. Copy your Studio API key (starts with `studio-`)
+
+### 2. Configure Your MCP Client
+
+#### For Claude Desktop
+
+Add to your Claude Desktop config file:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "pickaxe": {
       "command": "node",
-      "args": ["/Users/jameschristian/mcp-pickaxe/dist/index.js"],
+      "args": ["/path/to/mcp-pickaxe/dist/index.js"],
       "env": {
-        "PICKAXE_STUDIO_RRHUB": "studio-8b19d663-0e5f-44f4-a373-1245330f108a",
-        "PICKAXE_STUDIO_SKILLHIRE": "studio-35099fc7-64ba-4092-8a65-c597bf023fe6",
-        "PICKAXE_STUDIO_SUPERCHARGE": "studio-dc342112-cb3c-4067-be15-8a09c644116c",
-        "PICKAXE_STUDIO_FRAMEWORKPROMPTING": "studio-3a52efe6-0b7e-420b-b40e-06c566e4abd5",
-        "PICKAXE_STUDIO_INFORMATIC": "studio-55ff7a74-76b0-4c34-aff8-19a764a2f2e2",
-        "PICKAXE_DEFAULT_STUDIO": "RRHUB"
+        "PICKAXE_STUDIO_MAIN": "studio-your-api-key-here"
       }
     }
   }
 }
 ```
 
-### 4. Restart Claude Code
+#### For Claude Code
 
-The tools will appear as `mcp__pickaxe__<tool_name>`.
+Add to `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "pickaxe": {
+      "command": "node",
+      "args": ["/path/to/mcp-pickaxe/dist/index.js"],
+      "env": {
+        "PICKAXE_STUDIO_MAIN": "studio-your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+### Multi-Studio Configuration
+
+To work with multiple Pickaxe studios, add multiple environment variables:
+
+```json
+{
+  "env": {
+    "PICKAXE_STUDIO_PRODUCTION": "studio-xxx-xxx-xxx",
+    "PICKAXE_STUDIO_STAGING": "studio-yyy-yyy-yyy",
+    "PICKAXE_STUDIO_DEV": "studio-zzz-zzz-zzz",
+    "PICKAXE_DEFAULT_STUDIO": "PRODUCTION"
+  }
+}
+```
+
+Then specify which studio to use in your requests:
+- If you set `PICKAXE_DEFAULT_STUDIO`, that studio is used when none is specified
+- If only one studio is configured, it's used automatically
+- Otherwise, pass `studio="STAGING"` (or similar) to any tool
 
 ## Usage Examples
 
-### List configured studios
-```
-Use mcp__pickaxe__studios_list to see available studios
-```
+Once configured, you can interact with Pickaxe through natural language:
 
-### Analyze agent conversations (specific studio)
-```
-Use mcp__pickaxe__chat_history with studio="RRHUB", pickaxeId="B0AENXYFKO", limit=20
-```
+### Analyze Agent Performance
+> "Show me the last 20 conversations from my support agent"
 
-### Add content to an agent's KB
-```
-1. Use mcp__pickaxe__doc_create with studio="RRHUB", name="NIE Guide", rawContent="..."
-2. Use mcp__pickaxe__doc_connect with studio="RRHUB", documentId="...", pickaxeId="K3TI2AAP8D"
-```
+> "What questions are users asking that my agent can't answer?"
 
-### Manage users across studios
-```
-Use mcp__pickaxe__user_list with studio="RRHUB" to see RRHub users
-Use mcp__pickaxe__user_list with studio="INFORMATIC" to see Informatic users
-```
+### Manage Knowledge Base
+> "Create a new document called 'FAQ' with this content: [your content]"
 
-## Agent IDs (Remote Resilience Hub)
+> "Connect the FAQ document to my customer support agent"
 
-| Agent | Pickaxe ID |
-|-------|------------|
-| Hub Concierge | `B0AENXYFKO` |
-| Bureaucracy Navigator | `K3TI2AAP8D` |
+> "List all documents in my knowledge base"
 
-(Add other agent IDs from the `Agent - *.md` files as needed)
+### User Management
+> "Show me all users and their usage stats"
+
+> "Create a new user with email user@example.com and give them access to the Pro product"
+
+> "Send invitations to these emails: [list of emails]"
+
+### Multi-Studio Operations
+> "List all users in my staging studio"
+
+> "Compare the documents between production and staging"
+
+## Available Tools
+
+### Studio Management
+- `studios_list` - List all configured studios and the current default
+
+### Chat History
+- `chat_history` - Fetch conversation history for an agent
+  - Parameters: `pickaxeId`, `skip`, `limit`, `format` ("messages" or "raw"), `studio`
+
+### Document Management
+- `doc_create` - Create document from content or URL
+- `doc_list` - List all documents (with pagination)
+- `doc_get` - Get a specific document
+- `doc_delete` - Delete a document
+- `doc_connect` - Link document to an agent
+- `doc_disconnect` - Unlink document from an agent
+
+### User Management
+- `user_list` - List all users with access and usage info
+- `user_get` - Get a specific user by email
+- `user_create` - Create a new user
+- `user_update` - Update user details, products, or usage
+- `user_delete` - Delete a user
+- `user_invite` - Send email invitations
+
+### Products
+- `products_list` - List available products/bundles
+
+### Memory
+- `memory_list` - List memory schemas
+- `memory_get_user` - Get collected memories for a user
 
 ## Development
 
-Run in dev mode (no build required):
 ```bash
+# Run in development mode (auto-reloads)
 npm run dev
+
+# Build for production
+npm run build
+
+# Run the built version
+npm start
 ```
 
-## API Reference
+## Troubleshooting
 
-Full Pickaxe API documentation: See Obsidian vault at `04 Resources/Pickaxe/Pickaxe API documentation.md`
+### "No Pickaxe studios configured"
+Ensure you have at least one `PICKAXE_STUDIO_*` environment variable set in your MCP config.
+
+### "Studio not found"
+Check that the studio name matches exactly (case-insensitive). Run `studios_list` to see available options.
+
+### "Pickaxe API error (401)"
+Your API key is invalid or expired. Get a new one from Pickaxe Studio settings.
+
+### "Pickaxe API error (403)"
+Your API key doesn't have permission for this operation. Check your Pickaxe account permissions.
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Links
+
+- [Pickaxe Platform](https://pickaxe.co)
+- [Pickaxe Studio](https://studio.pickaxe.co)
+- [Model Context Protocol](https://modelcontextprotocol.io)
+- [MCP Specification](https://spec.modelcontextprotocol.io)

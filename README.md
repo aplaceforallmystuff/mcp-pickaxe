@@ -175,11 +175,11 @@ Daily Schedule (2am)
 
 ### 3. Agent Performance Review
 
-**Scenario:** Quarterly review of a prompting framework studio to identify KB gaps and user pain points.
+**Scenario:** Quarterly review of a training studio to identify KB gaps and user pain points.
 
 **Workflow:**
 ```
-1. "Fetch chat history from the Framework Prompting agents"
+1. "Fetch chat history from my training agents"
 2. "Analyze: which questions got unclear or uncertain responses?"
 3. "List all KB documents - which topics are missing?"
 4. "Check user stats - who's most active, who's churning?"
@@ -193,24 +193,24 @@ Daily Schedule (2am)
 
 ### 4. Multi-Studio Operations
 
-**Scenario:** Managing 7 different Pickaxe studios (RRHUB, SKILLHIRE, INFORMATIC, FRAMEWORKPROMPTING, etc.) from a single Claude session.
+**Scenario:** Managing multiple Pickaxe studios from a single Claude session.
 
 **Configuration:**
 ```json
 {
   "env": {
-    "PICKAXE_STUDIO_RRHUB": "studio-xxx",
-    "PICKAXE_STUDIO_SKILLHIRE": "studio-yyy",
-    "PICKAXE_STUDIO_INFORMATIC": "studio-zzz",
-    "PICKAXE_DEFAULT_STUDIO": "RRHUB"
+    "PICKAXE_STUDIO_PRODUCTION": "studio-xxx",
+    "PICKAXE_STUDIO_STAGING": "studio-yyy",
+    "PICKAXE_STUDIO_DEV": "studio-zzz",
+    "PICKAXE_DEFAULT_STUDIO": "PRODUCTION"
   }
 }
 ```
 
 **Workflow:**
 ```
-1. "List users in RRHUB - how many signups this month?"
-2. "Switch to SKILLHIRE - list products"
+1. "List users in PRODUCTION - how many signups this month?"
+2. "Switch to STAGING - list products"
 3. "Compare KB document counts across all studios"
 4. "Find which studio has the most chat activity"
 ```
@@ -226,7 +226,7 @@ Daily Schedule (2am)
 **Workflow:**
 ```
 1. "List all memory schemas defined in the studio"
-2. "Get memories for elena.zanesi.it@gmail.com"
+2. "Get memories for user@example.com"
 3. "What does the system know about this user's situation?"
 4. "Which memory fields are most populated across users?"
 ```

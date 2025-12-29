@@ -126,7 +126,128 @@ Then specify which studio to use in your requests:
 - If only one studio is configured, it's used automatically
 - Otherwise, pass `studio="STAGING"` (or similar) to any tool
 
-## Usage Examples
+## Use Cases
+
+These are real workflows built with mcp-pickaxe in production environments.
+
+### 1. Security Monitoring with n8n
+
+**Scenario:** Detect prompt injection attempts across 29+ AI agents in real-time.
+
+**Implementation:**
+An n8n workflow polls `chat_history` hourly for all agents, runs messages against injection detection patterns (stored in Notion), and routes alerts by severity:
+- HIGH/CRITICAL → Telegram alert + Notion log
+- LOW/MEDIUM → Notion log only
+
+```
+n8n Schedule (hourly)
+    → Fetch patterns from Notion
+    → Loop through 29 pickaxe IDs
+    → Fetch chat_history for each
+    → Detect injections (regex patterns)
+    → Route by severity → Alert/Log
+```
+
+**Tools used:** `chat_history`, `studios_list`
+
+**Result:** Real-time security monitoring across an entire studio with dynamic pattern management and severity-based alerting.
+
+### 2. Knowledge Base Auto-Research Pipeline
+
+**Scenario:** Automatically fact-check and maintain 31+ knowledge base articles.
+
+**Implementation:**
+An n8n workflow queries KB articles from Notion, extracts key claims, fact-checks via Perplexity API, classifies changes by risk level, and routes to auto-update or human review.
+
+```
+Daily Schedule (2am)
+    → Query KB articles from Notion
+    → Filter by day (hash-based, ~1/7th daily)
+    → Extract key claims
+    → Perplexity fact-check
+    → Classify: none/low/major risk
+    → Route: auto-update or create review task
+```
+
+**Tools used:** `doc_list`, `doc_get`, `doc_create`, `doc_connect`
+
+**Result:** KB content stays current with automated fact-checking and human-in-the-loop for major changes.
+
+### 3. Agent Performance Review
+
+**Scenario:** Quarterly review of a prompting framework studio to identify KB gaps and user pain points.
+
+**Workflow:**
+```
+1. "Fetch chat history from the Framework Prompting agents"
+2. "Analyze: which questions got unclear or uncertain responses?"
+3. "List all KB documents - which topics are missing?"
+4. "Check user stats - who's most active, who's churning?"
+5. "Create KB documents addressing the top 3 gaps"
+6. "Connect new documents to the relevant agents"
+```
+
+**Tools used:** `chat_history`, `doc_list`, `doc_create`, `doc_connect`, `user_list`
+
+**Result:** Data-driven KB improvements based on actual user conversations rather than guesswork.
+
+### 4. Multi-Studio Operations
+
+**Scenario:** Managing 7 different Pickaxe studios (RRHUB, SKILLHIRE, INFORMATIC, FRAMEWORKPROMPTING, etc.) from a single Claude session.
+
+**Configuration:**
+```json
+{
+  "env": {
+    "PICKAXE_STUDIO_RRHUB": "studio-xxx",
+    "PICKAXE_STUDIO_SKILLHIRE": "studio-yyy",
+    "PICKAXE_STUDIO_INFORMATIC": "studio-zzz",
+    "PICKAXE_DEFAULT_STUDIO": "RRHUB"
+  }
+}
+```
+
+**Workflow:**
+```
+1. "List users in RRHUB - how many signups this month?"
+2. "Switch to SKILLHIRE - list products"
+3. "Compare KB document counts across all studios"
+4. "Find which studio has the most chat activity"
+```
+
+**Tools used:** `studios_list`, `user_list`, `doc_list`, `products_list`
+
+**Result:** Cross-studio visibility without switching contexts or API keys manually.
+
+### 5. User Memory Auditing
+
+**Scenario:** Review what your agents remember about users for personalization and privacy compliance.
+
+**Workflow:**
+```
+1. "List all memory schemas defined in the studio"
+2. "Get memories for elena.zanesi.it@gmail.com"
+3. "What does the system know about this user's situation?"
+4. "Which memory fields are most populated across users?"
+```
+
+**Example output:**
+```
+User: maria.example@email.com
+Nickname: "Cautious Educator from Madrid"
+Summary: "Teaching [language] for [platform] at low hourly rate,
+         considering self-employment status due to
+         uncertain income"
+Memories: 1 stored
+```
+
+**Tools used:** `memory_list`, `memory_get_user`, `user_list`
+
+**Result:** Visibility into personalization data for both product improvement and GDPR compliance.
+
+---
+
+## Quick Start Examples
 
 Once configured, you can interact with Pickaxe through natural language:
 

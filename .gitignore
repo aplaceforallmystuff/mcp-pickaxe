@@ -26,3 +26,6 @@ npm-debug.log*
 # Test coverage
 coverage/
 .mcpregistry_*
+
+# Claude Code local config
+.claude/

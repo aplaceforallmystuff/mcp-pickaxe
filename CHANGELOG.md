@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-01-13
+
+### Changed
+- Updated `@modelcontextprotocol/sdk` to 1.25.2
+- Updated `@types/node` to 20.19.29
+- Updated `tsx` to 4.21.0
+
+### Fixed
+- Security vulnerability in `qs` dependency (GHSA-6rw7-vpxm-498p)
+- README formatting for config file paths
+
+### Added
+- Project logo artwork
+
 ## [1.0.1] - 2025-11-27
 
 ### Added

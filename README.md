@@ -1,5 +1,9 @@
 # MCP Pickaxe Server
 
+<p align="center">
+  <img src="docs/mcp-pickaxe-logo.png" alt="MCP Pickaxe Server" width="400">
+</p>
+
 [![npm version](https://img.shields.io/npm/v/mcp-pickaxe.svg)](https://www.npmjs.com/package/mcp-pickaxe)
 [![CI](https://github.com/aplaceforallmystuff/mcp-pickaxe/actions/workflows/ci.yml/badge.svg)](https://github.com/aplaceforallmystuff/mcp-pickaxe/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -72,6 +76,7 @@ npm run build
 Add to your Claude Desktop config file:
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json

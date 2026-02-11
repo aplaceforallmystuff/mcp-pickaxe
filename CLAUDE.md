@@ -1,53 +1,49 @@
-# CLAUDE.md
+# CLAUDE.md - mcp-pickaxe
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+MCP server for managing Pickaxe AI agents, knowledge bases, users, and analytics.
 
-## Project Overview
+## Tech Stack
 
-MCP server for the Pickaxe API - provides AI assistants with tools to manage Pickaxe studios, AI agents, documents, users, and analytics.
-
-## Commands
-
-```bash
-npm install      # Install dependencies
-npm run build    # Compile TypeScript to dist/
-npm run dev      # Run in development mode (tsx, no build required)
-npm start        # Run compiled version from dist/
-```
+- **Language:** TypeScript
+- **Runtime:** Node.js (ES modules)
+- **Protocol:** Model Context Protocol (MCP)
+- **Build:** TypeScript compiler (tsc)
 
 ## Architecture
 
-Single-file MCP server (`src/index.ts`) using `@modelcontextprotocol/sdk`:
-
-- **Multi-studio support**: Environment variables `PICKAXE_STUDIO_<NAME>` configure API keys for different studios. All tools accept an optional `studio` parameter.
-- **API wrapper**: `pickaxeRequest()` handles all Pickaxe API calls with auth and error handling
-- **Tool definitions**: Array of `Tool` objects with JSON Schema input definitions
-- **Tool execution**: `executeTool()` switch statement routes tool calls to API endpoints
-
-## Multi-Studio Configuration
-
-Studios are configured via environment variables:
 ```
-PICKAXE_STUDIO_PRODUCTION=studio-xxx
-PICKAXE_STUDIO_STAGING=studio-yyy
-PICKAXE_DEFAULT_STUDIO=PRODUCTION
+src/
+  index.ts          # Server, multi-studio config, all tool definitions and handlers
 ```
 
-The `getConfiguredStudios()` function scans env vars for `PICKAXE_STUDIO_*` prefixes. If no studio is specified in a tool call and no default is set, the server throws an error listing available options.
+## Development Commands
 
-## Adding New Tools
+```bash
+npm run build       # tsc
+npm run dev         # tsx src/index.ts
+npm start           # node dist/index.js
+```
 
-1. Add tool definition to the `tools` array with name, description, and inputSchema
-2. Add case handler in `executeTool()` switch statement
-3. Use `pickaxeRequest(endpoint, method, body, studio)` to call the API
+## Environment Variables
 
-## Pickaxe API
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PICKAXE_STUDIO_*` | Yes (at least one) | API key per studio (e.g., `PICKAXE_STUDIO_MAIN`) |
+| `PICKAXE_DEFAULT_STUDIO` | No | Default studio name when none specified |
 
-Base URL: `https://api.pickaxe.co/v1`
+## Tools (16)
 
-Main endpoints used:
-- `/studio/pickaxe/history` - Agent chat logs
-- `/studio/document/*` - Knowledge base documents
-- `/studio/user/*` - User management
-- `/studio/product/list` - Products/bundles
-- `/studio/memory/*` - Memory schemas and user memories
+**Studios:** `studios_list`
+**Chat:** `chat_history`
+**Documents:** `doc_create`, `doc_list`, `doc_get`, `doc_delete`, `doc_connect`, `doc_disconnect`
+**Users:** `user_list`, `user_get`, `user_create`, `user_update`, `user_delete`, `user_invite`
+**Products:** `products_list`
+**Memory:** `memory_list`, `memory_get_user`
+
+## Key Patterns
+
+- Uses `Server` class from MCP SDK (low-level API with `setRequestHandler`)
+- Multi-studio support via `PICKAXE_STUDIO_*` env var pattern
+- Every tool accepts optional `studio` param; `getApiKey()` resolves: explicit > default > single
+- `executeTool()` central switch dispatches to `pickaxeRequest()` API calls
+- Exits if no `PICKAXE_STUDIO_*` env vars found; studio names case-insensitive
